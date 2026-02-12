@@ -6,4 +6,7 @@ authRouter.post("/register",authController.registerController);
 
 authRouter.post("/login",authController.logginController );
 
+
+
+
 module.exports = authRouter;

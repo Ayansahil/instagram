@@ -24,6 +24,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const userModel = mongoose.model("User", userSchema, "Insta-user");
+const userModel = mongoose.model("users", userSchema);
 
 module.exports = userModel;
