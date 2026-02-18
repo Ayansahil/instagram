@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "https://ik.imagekit.io/0cef4ey58/defaultUser.webp",
   },
+  isPrivate: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const userModel = mongoose.model("users", userSchema);

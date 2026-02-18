@@ -65,7 +65,7 @@ async function getPostDetailsController(req, res) {
 
 async function likePostController(req, res) {
   const username = req.user.username;
-  const postId = req.params.id;
+  const postId = req.params.postId;
 
   const post = await postModel.findById(postId);
 
@@ -75,15 +75,27 @@ async function likePostController(req, res) {
     });
   }
 
-  const like = await likeModel.create({
-    post: postId,
-    user: username,
-  });
+  try {
+    const like = await likeModel.create({
+      post: postId,
+      user: username.trim(),
+    });
 
-  res.status(200).json({
-    message: "Post liked successfully.",
-    like,
-  });
+    return res.status(200).json({
+      message: "Post liked successfully.",
+      like,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        message: "You already liked this post.",
+      });
+    }
+
+    return res.status(500).json({
+      message: "Something went wrong.",
+    });
+  }
 }
 
 module.exports = {

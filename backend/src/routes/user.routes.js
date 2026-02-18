@@ -5,7 +5,7 @@ const userRouter = express.Router();
 
 /**
  * @route POST /api/users/follow/:userid
- * @description Follow a user
+ * @description Follow a user // Send follow request
  * @access Private
  */
 userRouter.post("/follow/:username",identifyUser,userController.followUserController);
@@ -17,5 +17,11 @@ userRouter.post("/follow/:username",identifyUser,userController.followUserContro
  */
 userRouter.post("/unfollow/:username",identifyUser,userController.unfollowUserController)
 
+
+// Accept request
+userRouter.post("/accept-req/:username",identifyUser,userController.acceptRequestController);
+
+// Reject request
+userRouter.post("/reject-req/:username",identifyUser,userController.rejectRequestController);
 
 module.exports = userRouter;
