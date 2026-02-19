@@ -12,10 +12,9 @@ async function registerController(req, res) {
   if (isUSerAlreadyExists) {
     return res.status(409).json({
       message:
-        "User already exists" +
-        (isUSerAlreadyExists.email == email
-          ? "Email already exist"
-          : "Username already exists"),
+        isUSerAlreadyExists.email === email
+          ? "Email already exists"
+          : "Username already exists",
     });
   }
 
@@ -51,11 +50,15 @@ async function registerController(req, res) {
 }
 
 async function logginController(req, res) {
-  const { username, email, password } = req.body;
+  const { identifier, password } = req.body;
 
-  const user = await userModel.findOne({
-    $or: [{ username }, { email }],
+ const user = await userModel.findOne({
+    $or: [
+      { username: identifier },
+      { email: identifier },
+    ],
   });
+
   if (!user) {
     return res.status(404).json({
       message: "User not found",

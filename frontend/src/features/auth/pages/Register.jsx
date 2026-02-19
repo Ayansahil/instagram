@@ -1,11 +1,12 @@
 import { useState } from "react";
-import api from "../services/api";
+import { Link } from "react-router-dom";
+import axios from "axios";
 import "../styles/register.scss";
-import registerImage from "../assets/instaRegister.png"; 
+import registerImage from "../../../assets/instaRegister.png";
 
 function Register() {
   const [form, setForm] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
   });
@@ -13,21 +14,19 @@ function Register() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-
-
   const validateForm = () => {
     const newErrors = {};
 
-    if (!form.name || form.name.length < 3) {
-      newErrors.name = "Name must be at least 3 characters";
+    if (!form.username || form.username.length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
     }
 
     if (!form.email || !/\S+@\S+\.\S+/.test(form.email)) {
       newErrors.email = "Please enter a valid email";
     }
 
-    if (!form.password || form.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
+    if (!form.password) {
+      newErrors.password = "Password is required";
     }
 
     setErrors(newErrors);
@@ -41,8 +40,12 @@ function Register() {
 
     setLoading(true);
     try {
-      await api.post("/auth/register", form);
-      alert("Account created successfully! Welcome to Instagram.");
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/register",
+        form,
+        { withCredentials: true },
+      );
+      alert(response.data.message || "Account created successfully!");
     } catch (error) {
       if (error.response?.data?.message) {
         alert(error.response.data.message);
@@ -58,10 +61,13 @@ function Register() {
     <div className="register-container">
       <div className="register-wrapper">
         <div className="hero-image">
-          <img src={registerImage} alt="Instagram Register" className="hero-img" />
+          <img
+            src={registerImage}
+            alt="Instagram Register"
+            className="hero-img"
+          />
         </div>
 
-        
         <div className="form-section">
           <div className="form-card">
             <div className="instagram-logo">
@@ -73,22 +79,23 @@ function Register() {
             </h2>
 
             <form onSubmit={handleSubmit}>
-              
+             
               <div className="form-group">
                 <div className="input-wrapper">
                   <input
                     type="text"
-                    className={`form-input ${errors.name ? "error" : ""}`}
-                    placeholder="Full Name"
-                    value={form.name}
+                    className={`form-input ${errors.username ? "error" : ""}`}
+                    placeholder="Username"
+                    value={form.username}
                     onChange={(e) => {
-                      setForm({ ...form, name: e.target.value });
-                      if (errors.name) setErrors({ ...errors, name: null });
+                      setForm({ ...form, username: e.target.value });
+                      if (errors.username)
+                        setErrors({ ...errors, username: null });
                     }}
                   />
                 </div>
-                {errors.name && (
-                  <div className="error-message">{errors.name}</div>
+                {errors.username && (
+                  <div className="error-message">{errors.username}</div>
                 )}
               </div>
 
@@ -170,9 +177,9 @@ function Register() {
 
           <div className="login-card">
             Have an account?
-            <a href="/login" className="login-link">
+            <Link to="/login" className="login-link">
               Log in
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -1,12 +1,13 @@
 import { useState } from "react";
-import api from "../services/api";
+import { Link } from "react-router-dom";
+import axios from "axios"; 
 import "../styles/login.scss";
-import loginImage from "../assets/instaLogin.png"; 
-import facebookIcon from "../assets/favicon.ico"; 
+import loginImage from "../../../assets/instaLogin.png";
+import facebookIcon from "../../../assets/favicon.ico";
 
 function Login() {
   const [form, setForm] = useState({
-    email: "",
+    identifier: "", 
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -16,8 +17,9 @@ function Login() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!form.email || !/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Please enter a valid email";
+    
+    if (!form.identifier || form.identifier.trim().length === 0) {
+      newErrors.identifier = "Username or email is required";
     }
 
     if (!form.password) {
@@ -35,8 +37,13 @@ function Login() {
 
     setLoading(true);
     try {
-      await api.post("/auth/login", form);
-      alert("Logged in successfully");
+     
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/login",
+        form,
+        { withCredentials: true } 
+      );
+      alert(response.data.message || "Logged in successfully!");
     } catch (error) {
       if (error.response?.data?.message) {
         alert(error.response.data.message);
@@ -68,17 +75,17 @@ function Login() {
                 <div className="input-wrapper">
                   <input
                     type="text"
-                    className={`form-input ${errors.email ? "error" : ""}`}
+                    className={`form-input ${errors.identifier ? "error" : ""}`}
                     placeholder="Mobile number, username or email"
-                    value={form.email}
+                    value={form.identifier}
                     onChange={(e) => {
-                      setForm({ ...form, email: e.target.value });
-                      if (errors.email) setErrors({ ...errors, email: null });
+                      setForm({ ...form, identifier: e.target.value });
+                      if (errors.identifier) setErrors({ ...errors, identifier: null });
                     }}
                   />
                 </div>
-                {errors.email && (
-                  <div className="error-message">{errors.email}</div>
+                {errors.identifier && (
+                  <div className="error-message">{errors.identifier}</div>
                 )}
               </div>
 
@@ -135,9 +142,9 @@ function Login() {
 
           <div className="signup-card">
             Don't have an account?
-            <a href="/register" className="signup-link">
+            <Link to="/register" className="signup-link">
               Create new account
-            </a>
+            </Link>
           </div>
 
           <div className="meta-footer">
