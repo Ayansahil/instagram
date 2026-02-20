@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import "../styles/register.scss";
 import registerImage from "../../../assets/instaRegister.png";
 
@@ -37,24 +36,9 @@ function Register() {
     e.preventDefault();
 
     if (!validateForm()) return;
-
     setLoading(true);
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/register",
-        form,
-        { withCredentials: true },
-      );
-      alert(response.data.message || "Account created successfully!");
-    } catch (error) {
-      if (error.response?.data?.message) {
-        alert(error.response.data.message);
-      } else {
-        alert("Registration failed. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
+
+    setLoading(false);
   };
 
   return (
@@ -79,7 +63,6 @@ function Register() {
             </h2>
 
             <form onSubmit={handleSubmit}>
-             
               <div className="form-group">
                 <div className="input-wrapper">
                   <input

@@ -52,11 +52,8 @@ async function registerController(req, res) {
 async function logginController(req, res) {
   const { identifier, password } = req.body;
 
- const user = await userModel.findOne({
-    $or: [
-      { username: identifier },
-      { email: identifier },
-    ],
+  const user = await userModel.findOne({
+    $or: [{ username: identifier }, { email: identifier }],
   });
 
   if (!user) {
@@ -95,4 +92,18 @@ async function logginController(req, res) {
   });
 }
 
-module.exports = { registerController, logginController };
+async function getMeController(req, res) {
+  const userId = req.user.id;
+  const user = await userModel.findById(userId);
+
+  res.status(200).json({
+    user: {
+      username: user.username,
+      email: user.email,
+      bio: user.bio,
+      profileImage: user.profileImage,
+    },
+  });
+}
+
+module.exports = { registerController, logginController, getMeController };

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios"; 
 import "../styles/login.scss";
 import loginImage from "../../../assets/instaLogin.png";
 import facebookIcon from "../../../assets/favicon.ico";
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [form, setForm] = useState({
-    identifier: "", 
+    identifier: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -17,7 +18,6 @@ function Login() {
   const validateForm = () => {
     const newErrors = {};
 
-    
     if (!form.identifier || form.identifier.trim().length === 0) {
       newErrors.identifier = "Username or email is required";
     }
@@ -33,26 +33,14 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    handleLogin(identifier, password)
+    .then((res) => {
+      console.log(res);
+    });
 
+    if (!validateForm()) return;
     setLoading(true);
-    try {
-     
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/login",
-        form,
-        { withCredentials: true } 
-      );
-      alert(response.data.message || "Logged in successfully!");
-    } catch (error) {
-      if (error.response?.data?.message) {
-        alert(error.response.data.message);
-      } else {
-        alert("Login failed. Please check your credentials.");
-      }
-    } finally {
-      setLoading(false);
-    }
+    setLoading(false);
   };
 
   return (
@@ -80,7 +68,8 @@ function Login() {
                     value={form.identifier}
                     onChange={(e) => {
                       setForm({ ...form, identifier: e.target.value });
-                      if (errors.identifier) setErrors({ ...errors, identifier: null });
+                      if (errors.identifier)
+                        setErrors({ ...errors, identifier: null });
                     }}
                   />
                 </div>
@@ -135,7 +124,11 @@ function Login() {
             <div className="divider">OR</div>
 
             <button className="facebook-login" type="button">
-              <img src={facebookIcon} alt="Facebook" className="facebook-icon" />
+              <img
+                src={facebookIcon}
+                alt="Facebook"
+                className="facebook-icon"
+              />
               Log in with Facebook
             </button>
           </div>
