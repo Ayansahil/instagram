@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/login.scss";
 import loginImage from "../../../assets/instaLogin.png";
 import facebookIcon from "../../../assets/favicon.ico";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [form, setForm] = useState({
@@ -12,8 +11,10 @@ function Login() {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const { handleLogin, loading } = useAuth();
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
@@ -30,17 +31,24 @@ function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
+  if (loading) {
+    return <h1>Loading...</h1>;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    handleLogin(identifier, password)
-    .then((res) => {
-      console.log(res);
-    });
-
     if (!validateForm()) return;
-    setLoading(true);
-    setLoading(false);
+
+    handleLogin(form.identifier, form.password)
+      .then(() => {
+        alert("Logged in successfully! 🎉");
+        navigate("/");
+      })
+      .catch((err) => {
+        console.error("Login error:", err);
+        alert("Login failed. Please check your credentials.");
+      });
   };
 
   return (

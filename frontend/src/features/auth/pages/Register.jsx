@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/register.scss";
 import registerImage from "../../../assets/instaRegister.png";
+import { useAuth } from "../hooks/useAuth";
 
 function Register() {
   const [form, setForm] = useState({
@@ -10,8 +11,10 @@ function Register() {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const { handleRegister, loading } = useAuth();
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
@@ -36,9 +39,16 @@ function Register() {
     e.preventDefault();
 
     if (!validateForm()) return;
-    setLoading(true);
 
-    setLoading(false);
+    handleRegister(form.username, form.email, form.password)
+      .then(() => {
+        alert("Account created successfully! Welcome to Instagram 🎉");
+        navigate("/login");
+      })
+      .catch((err) => {
+        console.error("Register error:", err);
+        alert("Registration failed. Please try again.");
+      });
   };
 
   return (
