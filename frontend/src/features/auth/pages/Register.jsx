@@ -35,21 +35,23 @@ function Register() {
     return Object.keys(newErrors).length === 0;
   };
 
+   if (loading) {
+    return (<main><h1>Loading...</h1></main>);
+  }
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    if (!validateForm()) return;
-
-    handleRegister(form.username, form.email, form.password)
-      .then(() => {
-        alert("Account created successfully! Welcome to Instagram 🎉");
-        navigate("/login");
-      })
-      .catch((err) => {
-        console.error("Register error:", err);
-        alert("Registration failed. Please try again.");
-      });
-  };
+  try {
+    await handleRegister(form.username, form.email, form.password);
+    alert("Account created successfully! Welcome to Instagram 🎉");
+    navigate("/login");
+  } catch (err) {
+    console.error("Register error:", err);
+    alert("Registration failed. Please try again.");
+  }
+};
 
   return (
     <div className="register-container">

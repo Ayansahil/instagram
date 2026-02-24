@@ -32,24 +32,22 @@ function Login() {
   };
 
   if (loading) {
-    return <h1>Loading...</h1>;
+    return (<main><h1>Loading...</h1></main>);
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    if (!validateForm()) return;
-
-    handleLogin(form.identifier, form.password)
-      .then(() => {
-        alert("Logged in successfully! 🎉");
-        navigate("/");
-      })
-      .catch((err) => {
-        console.error("Login error:", err);
-        alert("Login failed. Please check your credentials.");
-      });
-  };
+  try {
+    await handleLogin(form.identifier, form.password);
+    alert("Logged in successfully! 🎉");
+    navigate("/");
+  } catch (err) {
+    console.error("Login error:", err);
+    alert("Login failed. Please check your credentials.");
+  }
+};
 
   return (
     <div className="login-container">

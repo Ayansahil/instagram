@@ -98,9 +98,30 @@ async function likePostController(req, res) {
   }
 }
 
+async function getFeedController(req, res) {
+  try {
+    const posts = await postModel
+      .find()
+      .populate("user", "username email bio profileImage isPrivate")
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    res.status(200).json({
+      message: "posts fetched successfully.",
+      posts,
+    });
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({
+      message: "Failed to fetch posts",
+      error: error.message,
+    });
+  }
+}
 module.exports = {
   createPostController,
   getPostController,
   getPostDetailsController,
   likePostController,
+  getFeedController,
 };
