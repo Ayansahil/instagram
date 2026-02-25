@@ -1,28 +1,31 @@
-import { useState, useEffect } from "react";
-import { getFeed } from "../services/post.api";
+import { useEffect } from "react";
 import "../styles/feed.scss";
 import Post from "../components/Post";
+import { usePost } from "../hooks/usePost";
+import { useAuth } from "../../auth/hooks/useAuth";
 
 const Feed = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { feed, handleGetFeed, loading } = usePost();
+  const { user } = useAuth();
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const data = await getFeed();
-        setPosts(data.posts || []);
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (user) {
+      handleGetFeed();
+    }
+  }, [user]);
 
-    fetchPosts();
-  }, []);
+  if (!user) {
+    return (
+      <main className="feed-container">
+        <div className="empty-state">
+          <p>Please log in to view your feed</p>
+          <a href="/login">Go to Login</a>
+        </div>
+      </main>
+    );
+  }
 
-  if (loading) {
+  if (loading || !feed) {
     return (
       <main className="feed-container">
         <div className="loading-state">Loading posts...</div>
@@ -30,7 +33,7 @@ const Feed = () => {
     );
   }
 
-  if (posts.length === 0) {
+  if (feed.length === 0) {
     return (
       <main className="feed-container">
         <div className="empty-state">
@@ -42,8 +45,8 @@ const Feed = () => {
 
   return (
     <main className="feed-container">
-      {posts.map((post) => (
-        <Post key={post._id} post={post} /> 
+      {feed.map((post) => (
+        <Post key={post._id} post={post} />
       ))}
     </main>
   );

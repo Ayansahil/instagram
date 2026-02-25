@@ -100,15 +100,29 @@ async function likePostController(req, res) {
 
 async function getFeedController(req, res) {
   try {
+    const user = req.user;
+
     const posts = await postModel
       .find()
       .populate("user", "username email bio profileImage isPrivate")
       .sort({ createdAt: -1 })
-      .limit(50);
+      .limit(50)
+      .lean();
+
+    const postsWithLikes = await Promise.all(
+      posts.map(async (post) => {
+        const isLiked = await likeModel.findOne({
+          user: user.username,
+          post: post._id,
+        });
+        post.isLiked = Boolean(isLiked);
+        return post;
+      }),
+    );
 
     res.status(200).json({
       message: "posts fetched successfully.",
-      posts,
+      posts: postsWithLikes,
     });
   } catch (error) {
     console.error("Error fetching posts:", error);

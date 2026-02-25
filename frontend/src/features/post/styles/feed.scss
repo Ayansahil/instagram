@@ -1,5 +1,5 @@
 .feed-container {
-  max-width: 470px;
+  max-width: 450px;
   margin: 0 auto;
   padding: 20px 0;
   background: #fafafa;
@@ -147,15 +147,21 @@
 .post-image-container {
   position: relative;
   width: 100%;
+  padding-top: 100%; // ✅ 1:1 aspect ratio (square like Instagram)
   background: #000000;
+  overflow: hidden;
 }
 
 .post-image {
+  position: absolute; 
+  top: 0;
+  left: 0;
   width: 100%;
-  height: auto;
+  height: 100%; 
+  object-fit: cover; 
   display: block;
-  object-fit: cover;
 }
+
 
 .image-indicators {
   position: absolute;
@@ -198,7 +204,7 @@
 
 .left-actions {
   display: flex;
-  gap: 4px;
+ 
 }
 
 .action-btn {
@@ -402,7 +408,7 @@
 
 .post-image {
   width: 100%;
-  max-height: 900px;
+  max-height: 600px;
   height: auto;
   display: block;
   object-fit: contain;
