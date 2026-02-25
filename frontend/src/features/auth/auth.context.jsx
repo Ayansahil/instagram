@@ -5,7 +5,23 @@ export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await getMe(); 
+        setUser(response.user);
+      } catch (error) {
+        console.log("Not authenticated");
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const handleRegister = async (username, email, password) => {
     setLoading(true);
@@ -14,6 +30,7 @@ export function AuthProvider({ children }) {
       setUser(response.user);
     } catch (error) {
       console.log(error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -26,6 +43,7 @@ export function AuthProvider({ children }) {
       setUser(response.user);
     } catch (error) {
       console.log(error);
+      throw error;
     } finally {
       setLoading(false);
     }

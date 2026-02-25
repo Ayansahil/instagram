@@ -1,3 +1,4 @@
+const followModel = require("../models/follow.model");
 const postModel = require("../models/post.model");
 const ImageKit = require("@imagekit/nodejs");
 const { toFile } = require("@imagekit/nodejs");
@@ -100,19 +101,48 @@ async function likePostController(req, res) {
 
 async function getFeedController(req, res) {
   try {
-    const user = req.user;
+    const currentUser = req.user;
 
-    const posts = await postModel
+    if (!currentUser || !currentUser.username) {
+      return res.status(401).json({
+        message: "User not authenticated properly",
+      });
+    }
+    const allPosts = await postModel
       .find()
       .populate("user", "username email bio profileImage isPrivate")
       .sort({ createdAt: -1 })
-      .limit(50)
       .lean();
 
+    const allowedPosts = [];
+
+    for (const post of allPosts) {
+      if (!post.user) continue;
+
+      if (post.user.username === currentUser.username) {
+        allowedPosts.push(post);
+        continue;
+      }
+
+      if (!post.user.isPrivate) {
+        allowedPosts.push(post);
+        continue;
+      }
+
+      const isFollowing = await followModel.findOne({
+        follower: currentUser.username,
+        followee: post.user.username,
+        status: "accepted",
+      });
+
+      if (isFollowing) {
+        allowedPosts.push(post);
+      }
+    }
     const postsWithLikes = await Promise.all(
-      posts.map(async (post) => {
+      allowedPosts.map(async (post) => {
         const isLiked = await likeModel.findOne({
-          user: user.username,
+          user: currentUser.username,
           post: post._id,
         });
         post.isLiked = Boolean(isLiked);
@@ -126,12 +156,14 @@ async function getFeedController(req, res) {
     });
   } catch (error) {
     console.error("Error fetching posts:", error);
+    console.error("Error stack:", error.stack);
     res.status(500).json({
       message: "Failed to fetch posts",
       error: error.message,
     });
   }
 }
+
 module.exports = {
   createPostController,
   getPostController,
