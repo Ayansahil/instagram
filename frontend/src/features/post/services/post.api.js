@@ -14,3 +14,22 @@ export const getFeed = async () => {
     throw error;
   }
 };
+
+
+export const createPost = async (file, caption) => {
+  try {
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("caption", caption);
+
+    const response = await api.post("/posts", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating post:", error);
+    throw error;
+  }
+};

@@ -1,18 +1,45 @@
-import { getFeed } from "../services/post.api";
+import { getFeed, createPost } from "../services/post.api";
 import { useContext } from "react";
 import { PostContext } from "../post.context";
 
 export const usePost = () => {
   const context = useContext(PostContext);
-
-  const { loading, setLoading, post, setPost, feed, setFeed } = context;
+  const { loading, setLoading, post, setPost, feed, setFeed, prependPost } = context;
 
   const handleGetFeed = async () => {
     setLoading(true);
-    const data = await getFeed();
-    setFeed(data.posts);
-    setLoading(false);
+    try {
+      const data = await getFeed();
+      setFeed(data.posts);
+    } catch (error) {
+      console.error("Failed to load feed:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return { loading, feed, post, handleGetFeed };
+  const handleCreatePost = async (file, caption) => {
+    setLoading(true);
+    try {
+      const response = await createPost(file, caption);
+      // ✅ Optimistic-real update: prepend server-returned post to feed immediately
+      if (response?.post) {
+        prependPost(response.post);
+      }
+      return response;
+    } catch (error) {
+      alert("Failed to create post. Please try again.");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    feed,
+    post,
+    handleGetFeed,
+    handleCreatePost,
+  };
 };

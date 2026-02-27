@@ -35,19 +35,19 @@ function Login() {
     return (<main><h1>Loading...</h1></main>);
   }
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-  try {
-    await handleLogin(form.identifier, form.password);
-    alert("Logged in successfully! 🎉");
-    navigate("/");
-  } catch (err) {
-    console.error("Login error:", err);
-    alert("Login failed. Please check your credentials.");
-  }
-};
+    try {
+      await handleLogin(form.identifier, form.password);
+      alert("Logged in successfully! 🎉");
+      navigate("/");
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Login failed. Please check your credentials.");
+    }
+  };
 
   return (
     <div className="login-container">

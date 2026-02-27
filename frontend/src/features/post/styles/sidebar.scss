@@ -1,0 +1,189 @@
+// ─── Sidebar Container ────────────────────────────────────────────────────────
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 245px;
+  background: #ffffff;
+  border-right: 1px solid #dbdbdb;
+  padding: 8px 12px 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width 0.3s ease;
+}
+
+// ─── Logo ─────────────────────────────────────────────────────────────────────
+
+.sidebar-logo {
+  padding: 25px 12px 20px;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Grand Hotel', 'Billabong', cursive, sans-serif;
+  background: linear-gradient(
+    45deg,
+    #f09433 0%,
+    #e6683c 25%,
+    #dc2743 50%,
+    #cc2366 75%,
+    #bc1888 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+
+  &:hover {
+    filter: brightness(1.15);
+  }
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #262626;
+  text-decoration: none;
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-family: inherit;
+
+  &:hover {
+    background: #f2f2f2;
+  }
+
+  &.active {
+    font-weight: 700;
+
+    .nav-icon {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.nav-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.nav-label {
+  font-size: 16px;
+  font-weight: 400;
+
+  .active & {
+    font-weight: 700;
+  }
+}
+
+// ─── Special Highlight for Create Button ─────────────────────────────────────
+
+.nav-item[data-create="true"] {
+  .nav-icon {
+    color: #0095f6;
+  }
+
+  &:hover {
+    background: rgba(0, 149, 246, 0.05);
+  }
+}
+
+// ─── Responsive ───────────────────────────────────────────────────────────────
+
+@media (max-width: 1264px) {
+  .sidebar {
+    width: 72px;
+  }
+
+  .nav-label {
+    display: none;
+  }
+
+  .sidebar-logo {
+    font-size: 28px;
+    text-align: center;
+    padding: 25px 0;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    height: 60px;
+    width: 100%;
+    border-right: none;
+    border-top: 1px solid #dbdbdb;
+    padding: 0;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .sidebar-logo {
+    display: none;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+    gap: 0;
+  }
+
+  .nav-item {
+    flex-direction: column;
+    gap: 0;
+    padding: 8px;
+    flex: 1;
+    max-width: 80px;
+
+    &:hover {
+      background: transparent;
+    }
+
+    &.active {
+      .nav-icon {
+        color: #0095f6;
+      }
+    }
+  }
+
+  .nav-icon {
+    font-size: 22px;
+  }
+
+  .nav-label {
+    display: none;
+  }
+}

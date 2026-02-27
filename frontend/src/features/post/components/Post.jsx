@@ -12,7 +12,7 @@ const Post = ({ post }) => {
           <div className="profile-wrapper">
             <div className="profile-gradient">
               <img
-                src={post.user.profileImage}
+                src={post.user.profileImage || "https://via.placeholder.com/40"}
                 alt={post.user.username}
                 className="profile-image"
                 onError={(e) => {

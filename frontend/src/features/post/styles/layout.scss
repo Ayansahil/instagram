@@ -1,0 +1,33 @@
+// ─── Main App Layout (Sidebar + Content) ──────────────────────────────────────
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+// ─── Content Area (right of sidebar) ──────────────────────────────────────────
+
+.main-content {
+  flex: 1;
+  margin-left: 245px; // matches sidebar width
+  min-height: 100vh;
+  background: #fafafa;
+  overflow-y: auto;
+}
+
+// ─── Responsive: icon-only sidebar at medium screens ──────────────────────────
+
+@media (max-width: 1264px) {
+  .main-content {
+    margin-left: 72px; // matches collapsed sidebar width
+  }
+}
+
+// ─── Responsive: bottom nav bar on mobile ─────────────────────────────────────
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    margin-bottom: 60px; // space for bottom nav
+  }
+}

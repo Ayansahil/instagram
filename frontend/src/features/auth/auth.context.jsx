@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { register, login, getMe } from "./services/auth.api";
+import { register, login, getMe, logout } from "./services/auth.api";
 
 export const AuthContext = createContext();
 
@@ -10,16 +10,14 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await getMe(); 
+        const response = await getMe();
         setUser(response.user);
       } catch (error) {
-        console.log("Not authenticated");
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
-
     checkAuth();
   }, []);
 
@@ -29,7 +27,6 @@ export function AuthProvider({ children }) {
       const response = await register(username, email, password);
       setUser(response.user);
     } catch (error) {
-      console.log(error);
       throw error;
     } finally {
       setLoading(false);
@@ -42,15 +39,26 @@ export function AuthProvider({ children }) {
       const response = await login(identifier, password);
       setUser(response.user);
     } catch (error) {
-      console.log(error);
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (_) {
+      // Ignore API errors — clear client state regardless
+    } finally {
+      setUser(null);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, handleRegister, handleLogin }}>
+    <AuthContext.Provider
+      value={{ user, loading, handleRegister, handleLogin, handleLogout }}
+    >
       {children}
     </AuthContext.Provider>
   );
