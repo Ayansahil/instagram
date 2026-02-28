@@ -106,4 +106,47 @@ async function getMeController(req, res) {
   });
 }
 
-module.exports = { registerController, logginController, getMeController };
+async function updateMeController(req, res) {
+  try {
+    const userId = req.user.id;
+    const { username, bio, profileImage } = req.body;
+
+    // if username provided, ensure uniqueness
+    if (username) {
+      const existing = await userModel.findOne({ username: username.trim() });
+      if (existing && existing._id.toString() !== userId) {
+        return res.status(409).json({ message: "Username already taken" });
+      }
+    }
+
+    const updated = await userModel.findByIdAndUpdate(
+      userId,
+      {
+        ...(username ? { username: username.trim() } : {}),
+        ...(bio !== undefined ? { bio } : {}),
+        ...(profileImage !== undefined ? { profileImage } : {}),
+      },
+      { new: true },
+    );
+
+    return res.status(200).json({
+      message: "Profile updated",
+      user: {
+        username: updated.username,
+        email: updated.email,
+        bio: updated.bio,
+        profileImage: updated.profileImage,
+      },
+    });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    return res.status(500).json({ message: "Failed to update profile" });
+  }
+}
+
+module.exports = {
+  registerController,
+  logginController,
+  getMeController,
+  updateMeController,
+};

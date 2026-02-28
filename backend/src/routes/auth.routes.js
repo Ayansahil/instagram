@@ -19,5 +19,7 @@ authRouter.post("/login", authController.logginController);
  * @access Private
  */
 authRouter.get("/get-me", identifyUser, authController.getMeController);
+// Update current user profile
+authRouter.put("/update-me", identifyUser, authController.updateMeController);
 
 module.exports = authRouter;

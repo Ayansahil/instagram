@@ -82,9 +82,11 @@ async function likePostController(req, res) {
       user: username.trim(),
     });
 
+    const likeCount = await likeModel.countDocuments({ post: postId });
     return res.status(200).json({
       message: "Post liked successfully.",
       like,
+      likeCount,
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -99,6 +101,30 @@ async function likePostController(req, res) {
   }
 }
 
+async function unlikePostController(req, res) {
+  const postId = req.params.postId;
+  const username = req.user.username;
+
+  const existingLike = await likeModel.findOne({
+    post: postId,
+    user: username,
+  });
+  if (!existingLike) {
+    return res.status(404).json({
+      message: "Like not found",
+    });
+  }
+
+  // remove the like document
+  await likeModel.deleteOne({ _id: existingLike._id });
+  const likeCount = await likeModel.countDocuments({ post: postId });
+
+  return res.status(200).json({
+    message: "Post unliked successfully",
+    likeCount,
+  });
+}
+
 async function getFeedController(req, res) {
   try {
     const currentUser = req.user;
@@ -111,7 +137,7 @@ async function getFeedController(req, res) {
     const allPosts = await postModel
       .find()
       .populate("user", "username email bio profileImage isPrivate")
-      .sort({ createdAt: -1 })
+      .sort({ _id: -1 })
       .lean();
 
     const allowedPosts = [];
@@ -145,7 +171,9 @@ async function getFeedController(req, res) {
           user: currentUser.username,
           post: post._id,
         });
+        const likeCount = await likeModel.countDocuments({ post: post._id });
         post.isLiked = Boolean(isLiked);
+        post.likeCount = likeCount;
         return post;
       }),
     );
@@ -164,10 +192,60 @@ async function getFeedController(req, res) {
   }
 }
 
+async function createCommentController(req, res) {
+  try {
+    const postId = req.params.postId;
+    const user = req.user;
+    const { text } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ message: "Comment cannot be empty" });
+    }
+
+    const post = await postModel.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const commentModel = require("../models/comment.model");
+
+    const comment = await commentModel.create({
+      post: postId,
+      userId: user.id,
+      username: user.username,
+      profileImage: user.profileImage || "",
+      text: text.trim(),
+    });
+
+    return res.status(201).json({ message: "Comment added", comment });
+  } catch (err) {
+    console.error("Error creating comment:", err);
+    return res.status(500).json({ message: "Error creating comment" });
+  }
+}
+
+async function getCommentsController(req, res) {
+  try {
+    const postId = req.params.postId;
+    const commentModel = require("../models/comment.model");
+    const comments = await commentModel
+      .find({ post: postId })
+      .sort({ createdAt: 1 })
+      .lean();
+    return res.status(200).json({ comments });
+  } catch (err) {
+    console.error("Error fetching comments:", err);
+    return res.status(500).json({ message: "Error fetching comments" });
+  }
+}
+
 module.exports = {
   createPostController,
   getPostController,
   getPostDetailsController,
   likePostController,
+  unlikePostController,
   getFeedController,
+  createCommentController,
+  getCommentsController,
 };
+
+

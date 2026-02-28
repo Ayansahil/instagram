@@ -5,6 +5,7 @@ import Feed from "./features/post/pages/Feed";
 import MainLayout from "./features/post/components/MainLayout";
 import ProtectedRoute from "./features/auth/components/ProtectedRoute";
 import CreatePostRoute from "./features/post/pages/CreatePostRoute";
+import Profile from "./features/user/pages/Profile";
 
 export const router = createBrowserRouter([
   // ─── Public routes (no sidebar) ─────────────────────────────────────────────
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
       {
         path: "create-post",
         element: <CreatePostRoute />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
       },
     ],
   },

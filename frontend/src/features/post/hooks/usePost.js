@@ -1,4 +1,4 @@
-import { getFeed, createPost } from "../services/post.api";
+import { getFeed, createPost, likePost, unlikePost } from "../services/post.api";
 import { useContext } from "react";
 import { PostContext } from "../post.context";
 
@@ -22,7 +22,6 @@ export const usePost = () => {
     setLoading(true);
     try {
       const response = await createPost(file, caption);
-      // ✅ Optimistic-real update: prepend server-returned post to feed immediately
       if (response?.post) {
         prependPost(response.post);
       }
@@ -35,11 +34,58 @@ export const usePost = () => {
     }
   };
 
+
+  const handleLikePost = async (postId) => {
+    try {
+      const res = await likePost(postId);
+      setFeed((prev) =>
+        prev.map((p) =>
+          p._id === postId
+            ? {
+                ...p,
+                isLiked: true,
+                likeCount:
+                  typeof res.likeCount === "number"
+                    ? res.likeCount
+                    : (p.likeCount || 0) + 1,
+              }
+            : p,
+        ),
+      );
+    } catch (error) {
+      // swallow, UI already optimistic
+    }
+  };
+
+  const handleUnlikePost = async (postId) => {
+    try {
+      const res = await unlikePost(postId);
+      setFeed((prev) =>
+        prev.map((p) =>
+          p._id === postId
+            ? {
+                ...p,
+                isLiked: false,
+                likeCount:
+                  typeof res.likeCount === "number"
+                    ? res.likeCount
+                    : Math.max((p.likeCount || 1) - 1, 0),
+              }
+            : p,
+        ),
+      );
+    } catch (error) {
+      // swallow
+    }
+  };
+
   return {
     loading,
     feed,
     post,
     handleGetFeed,
     handleCreatePost,
+    handleLikePost,
+    handleUnlikePost,
   };
 };

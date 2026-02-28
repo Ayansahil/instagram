@@ -30,6 +30,8 @@ postRouter.get("/details/:postId",identifyUser,postController.getPostDetailsCont
  * @description like a post with the id provided in the request params. 
  */
 postRouter.post("/like/:postId",identifyUser,postController.likePostController)
+postRouter.post("/unlike/:postId",identifyUser,postController.unlikePostController)
+
 
 /**
  * @route GET /api/posts/feed
@@ -37,6 +39,10 @@ postRouter.post("/like/:postId",identifyUser,postController.likePostController)
  * @access private
  */
 postRouter.get("/feed",identifyUser,postController.getFeedController);
+
+// Comments
+postRouter.post("/:postId/comments", identifyUser, postController.createCommentController);
+postRouter.get("/:postId/comments", identifyUser, postController.getCommentsController);
 
 
 

@@ -1,8 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePost } from "../hooks/usePost";
+import { useComments } from "../hooks/useComments";
+import Comment from "./Comment";
 
 const Post = ({ post }) => {
-  const [isLiked, setIsLiked] = useState(false);
+  const { handleLikePost, handleUnlikePost } = usePost();
+
+  const [isLiked, setIsLiked] = useState(post.isLiked || false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.likeCount || 0);
+  const [commentText, setCommentText] = useState("");
+  const { comments, submitComment } = useComments(post._id);
+
+  useEffect(() => {
+    setIsLiked(post.isLiked || false);
+    setLikeCount(post.likeCount || 0);
+  }, [post.isLiked, post.likeCount]);
 
   return (
     <article className="post-card">
@@ -10,11 +23,11 @@ const Post = ({ post }) => {
       <header className="post-header">
         <div className="user-info">
           <div className="profile-wrapper">
-            <div className="profile-gradient">
+            <div className="post-profile-gradient">
               <img
                 src={post.user.profileImage || "https://via.placeholder.com/40"}
                 alt={post.user.username}
-                className="profile-image"
+                className="post-profile-image"
                 onError={(e) => {
                   e.target.src = "https://via.placeholder.com/40";
                 }}
@@ -55,7 +68,25 @@ const Post = ({ post }) => {
         <div className="left-actions">
           <button
             className={`action-btn ${isLiked ? "liked" : ""}`}
-            onClick={() => setIsLiked(!isLiked)}
+            onClick={async () => {
+              setIsLiked((prev) => !prev);
+              setLikeCount((c) =>
+                isLiked ? Math.max(c - 1, 0) : c + 1,
+              );
+              try {
+                if (isLiked) {
+                  await handleUnlikePost(post._id);
+                } else {
+                  await handleLikePost(post._id);
+                }
+              } catch (err) {
+                setIsLiked((prev) => !prev);
+                setLikeCount((c) =>
+                  isLiked ? c + 1 : Math.max(c - 1, 0),
+                );
+                console.error("Failed to update like status", err);
+              }
+            }}
             aria-label="Like">
             {isLiked ? (
               <svg
@@ -128,7 +159,9 @@ const Post = ({ post }) => {
 
       {/* ===== LIKES ===== */}
       <div className="likes-count">
-        <span className="count">Be the first to like this</span>
+        <span className="count">
+          {likeCount > 0 ? `${likeCount} ${likeCount === 1 ? "like" : "likes"}` : "Be the first to like this"}
+        </span>
       </div>
 
       {/* ===== CAPTION ===== */}
@@ -145,9 +178,47 @@ const Post = ({ post }) => {
           type="text"
           placeholder="Add a comment..."
           className="comment-input"
+          value={commentText}
+          onChange={(e) => setCommentText(e.target.value)}
+          onKeyDown={async (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const text = commentText.trim();
+              if (!text) return;
+              setCommentText("");
+              try {
+                await submitComment(text);
+              } catch (err) {
+                console.error("Failed to post comment", err);
+              }
+            }
+          }}
         />
-        <button className="post-comment-btn">Post</button>
+        <button
+          className="post-comment-btn"
+          onClick={async () => {
+            const text = commentText.trim();
+            if (!text) return;
+            setCommentText("");
+            try {
+              await submitComment(text);
+            } catch (err) {
+              console.error("Failed to post comment", err);
+            }
+          }}
+        >
+          Post
+        </button>
       </div>
+
+      {/* ===== COMMENTS LIST ===== */}
+      {comments && comments.length > 0 && (
+        <div className="comments-list">
+          {comments.map((c) => (
+            <Comment key={c._id} comment={c} />
+          ))}
+        </div>
+      )}
     </article>
   );
 };

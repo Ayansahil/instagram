@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/hooks/useAuth";
 import "../styles/createpost.scss";
 
@@ -9,6 +10,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, loading }) => {
   const [caption, setCaption] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const MAX_CAPTION_LENGTH = 200; // Instagram limit
 
@@ -54,7 +56,8 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, loading }) => {
     setSelectedImage(null);
     setImagePreview(null);
     setCaption("");
-    onClose();
+    if (typeof onClose === "function") onClose();
+    else navigate(-1);
   };
 
   // Submit post

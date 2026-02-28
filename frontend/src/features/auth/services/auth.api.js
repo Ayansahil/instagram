@@ -51,4 +51,13 @@ export async function logout() {
   }
 }
 
+export async function updateUser(payload) {
+  try {
+    const response = await api.put("/update-me", payload);
+    return response.data;
+  } catch (error) {
+    throw extractError(error);
+  }
+}
+
 

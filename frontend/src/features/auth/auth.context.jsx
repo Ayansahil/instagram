@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { register, login, getMe, logout } from "./services/auth.api";
+import { register, login, getMe, logout, updateUser } from "./services/auth.api";
 
 export const AuthContext = createContext();
 
@@ -55,9 +55,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const handleUpdateUser = async (payload) => {
+    setLoading(true);
+    try {
+      const res = await updateUser(payload);
+      if (res?.user) setUser(res.user);
+      return res;
+    } catch (err) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, handleRegister, handleLogin, handleLogout }}
+      value={{ user, loading, handleRegister, handleLogin, handleLogout, handleUpdateUser }}
     >
       {children}
     </AuthContext.Provider>

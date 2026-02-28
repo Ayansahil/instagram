@@ -27,6 +27,19 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+}, { timestamps: true });
+
+// Virtual fields for followers and following counts
+userSchema.virtual("followersCount").set(function(value) {
+  this._followersCount = value;
+}).get(function() {
+  return this._followersCount || 0;
+});
+
+userSchema.virtual("followingCount").set(function(value) {
+  this._followingCount = value;
+}).get(function() {
+  return this._followingCount || 0;
 });
 
 const userModel = mongoose.model("users", userSchema);

@@ -33,3 +33,43 @@ export const createPost = async (file, caption) => {
     throw error;
   }
 };
+
+export const likePost = async (postId) => {
+  try {
+    const response = await api.post(`/posts/like/${postId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error liking post:", error);
+    throw error;
+  }
+};
+
+export const unlikePost = async (postId) => {
+  try {
+    const response = await api.post(`/posts/unlike/${postId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error unliking post:", error);
+    throw error;
+  }
+}; 
+
+export const addComment = async (postId, text) => {
+  try {
+    const response = await api.post(`/posts/${postId}/comments`, { text });
+    return response.data;
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    throw error;
+  }
+};
+
+export const getComments = async (postId) => {
+  try {
+    const response = await api.get(`/posts/${postId}/comments`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    throw error;
+  }
+};

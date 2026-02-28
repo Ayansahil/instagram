@@ -4,13 +4,7 @@ import Feed from "./Feed";
 import CreatePostModal from "../components/CreatePostModal";
 import { usePost } from "../hooks/usePost";
 
-/**
- * Renders the Feed as the background content and opens the
- * CreatePostModal as an overlay — identical to Instagram's pattern.
- *
- * Accessible at /create-post  (from the sidebar Create button
- * or by navigating directly to the URL).
- */
+
 const CreatePostRoute = () => {
     const navigate = useNavigate();
     const { handleCreatePost, loading } = usePost();
