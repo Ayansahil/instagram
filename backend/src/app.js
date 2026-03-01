@@ -2,8 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
-const path =require('path');
-
+const path = require("path");
 
 /* require routes */
 const authRouter = require("./routes/auth.routes");
@@ -14,7 +13,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: "http://localhost:5173"
+    origin: true,
   }),
 );
 app.use(express.json());
@@ -28,8 +27,8 @@ app.use("/api/posts", postRouter);
 app.use("/api/users", userRouter);
 
 /* public route */
-app.use('*name',(req,res)=>{
-  res.sendFile(path.join(__dirname, ".." ,"/public/index.html"))
-})
+app.use("*name", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "/public/index.html"));
+});
 
 module.exports = app;
