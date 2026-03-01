@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useAuth } from "../../auth/hooks/useAuth";
 import "../styles/followersmodal.scss";
 
+const PLACEHOLDER = "https://ik.imagekit.io/0cef4ey58/defaultUser.webp";
+
 const FollowersModal = ({ 
   isOpen, 
   onClose, 
@@ -66,10 +68,11 @@ const FollowersModal = ({
                   <div className="user-info">
                     <div className="user-avatar">
                       <img
-                        src={user.profileImage}
+                        src={user.profileImage || PLACEHOLDER}
                         alt={user.username}
                         onError={(e) => {
-                          e.target.src = "https://via.placeholder.com/44";
+                          e.target.onerror = null;
+                          e.target.src = PLACEHOLDER;
                         }}
                       />
                     </div>

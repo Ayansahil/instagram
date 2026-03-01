@@ -17,6 +17,8 @@ const Post = ({ post }) => {
     setLikeCount(post.likeCount || 0);
   }, [post.isLiked, post.likeCount]);
 
+  const PLACEHOLDER = "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='200'%20height='200'%3E%3Crect%20width='100%25'%20height='100%25'%20fill='%23ccc'/%3E%3C/svg%3E";
+
   return (
     <article className="post-card">
       {/* ===== HEADER ===== */}
@@ -25,11 +27,12 @@ const Post = ({ post }) => {
           <div className="profile-wrapper">
             <div className="post-profile-gradient">
               <img
-                src={post.user.profileImage || "https://via.placeholder.com/40"}
+                src={post.user.profileImage || PLACEHOLDER}
                 alt={post.user.username}
                 className="post-profile-image"
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/40";
+                  e.target.onerror = null;
+                  e.target.src = PLACEHOLDER;
                 }}
               />
             </div>
@@ -58,7 +61,8 @@ const Post = ({ post }) => {
           alt={post.caption || "Post image"}
           className="post-image"
           onError={(e) => {
-            e.target.src = "https://via.placeholder.com/600x750";
+            e.target.onerror = null;
+            e.target.src = PLACEHOLDER;
           }}
         />
       </div>

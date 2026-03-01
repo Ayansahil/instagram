@@ -154,6 +154,34 @@
   border-bottom: 1px solid #dbdbdb;
 }
 
+/* mobile adjustments for profile header */
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .profile-gradient {
+    width: 90px;
+    height: 90px;
+    padding: 2px;
+
+    img {
+      width: 84px;
+      height: 84px;
+    }
+  }
+
+  .profile-info {
+    width: 100%;
+  }
+
+  .profile-top {
+    justify-content: center;
+  }
+}
+
 .profile-avatar-large {
   flex-shrink: 0;
 }

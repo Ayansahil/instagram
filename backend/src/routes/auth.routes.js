@@ -14,6 +14,11 @@ authRouter.post("/register", authController.registerController);
 authRouter.post("/login", authController.logginController);
 
 /**
+ * POST /api/auth/logout
+ */
+authRouter.post("/logout", authController.logoutController);
+
+/**
  * @route GET /api/auth/get-me
  * @desc Get the currently logged in user's information
  * @access Private

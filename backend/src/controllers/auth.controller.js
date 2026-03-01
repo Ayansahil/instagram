@@ -27,16 +27,28 @@ async function registerController(req, res) {
     profileImage,
     password: hash,
   });
+  // JWT only contains the user id.  We avoid putting username or
+  // profileImage into the token because those values can be long (profileImage
+  // especially if it's a data URI) and cause the cookie to exceed the 4KB
+  // browser limit.  Any additional user info needed by handlers is fetched in
+  // the auth middleware when the request arrives.
   const token = jwt.sign(
     {
       id: user._id,
-      username: user.username,
     },
     process.env.JWT_SECRET,
     { expiresIn: "1d" },
   );
 
-  res.cookie("token", token);
+  // Set a minimal, secure cookie containing only the JWT token.
+  // In development `secure` should be false so localhost works over HTTP.
+  res.cookie("token", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    path: "/",
+  });
 
   res.status(201).json({
     message: "User registered successfully",
@@ -73,13 +85,18 @@ async function logginController(req, res) {
   const token = jwt.sign(
     {
       id: user._id,
-      username: user.username,
     },
     process.env.JWT_SECRET,
     { expiresIn: "1d" },
   );
 
-  res.cookie("token", token);
+  res.cookie("token", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 24 * 60 * 60 * 1000,
+    path: "/",
+  });
 
   res.status(200).json({
     message: "User logged in successfully",
@@ -111,7 +128,6 @@ async function updateMeController(req, res) {
     const userId = req.user.id;
     const { username, bio, profileImage } = req.body;
 
-    // if username provided, ensure uniqueness
     if (username) {
       const existing = await userModel.findOne({ username: username.trim() });
       if (existing && existing._id.toString() !== userId) {
@@ -119,13 +135,16 @@ async function updateMeController(req, res) {
       }
     }
 
+    const updateFields = {
+      ...(username ? { username: username.trim() } : {}),
+      ...(bio !== undefined ? { bio } : {}),
+    };
+    if (profileImage !== undefined && profileImage.trim() !== "") {
+      updateFields.profileImage = profileImage;
+    }
     const updated = await userModel.findByIdAndUpdate(
       userId,
-      {
-        ...(username ? { username: username.trim() } : {}),
-        ...(bio !== undefined ? { bio } : {}),
-        ...(profileImage !== undefined ? { profileImage } : {}),
-      },
+      updateFields,
       { new: true },
     );
 
@@ -144,9 +163,26 @@ async function updateMeController(req, res) {
   }
 }
 
+async function logoutController(req, res) {
+  try {
+    // clear token cookie (match options used when setting it)
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    });
+    return res.status(200).json({ message: "Logged out" });
+  } catch (err) {
+    console.error("Error during logout:", err);
+    return res.status(500).json({ message: "Logout failed" });
+  }
+}
+
 module.exports = {
   registerController,
   logginController,
   getMeController,
   updateMeController,
+  logoutController,
 };

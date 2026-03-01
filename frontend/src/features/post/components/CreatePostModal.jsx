@@ -68,6 +68,8 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, loading }) => {
     }
   };
 
+  const PLACEHOLDER = "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%3E%3Crect%20width='32'%20height='32'%20fill='%23ccc'/%3E%3C/svg%3E";
+
   if (!isOpen) return null;
 
   return (
@@ -139,10 +141,14 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit, loading }) => {
 
               <div className="caption-section">
                 <div className="user-info">
-                  <div className="profile-avatar">
+                    <div className="profile-avatar">
                     <img
-                      src={user?.profileImage || "https://via.placeholder.com/32"}
+                      src={user?.profileImage || PLACEHOLDER}
                       alt={user?.username || "user"}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = PLACEHOLDER;
+                      }}
                     />
                   </div>
                   <span className="username">{user?.username || ""}</span>

@@ -1,10 +1,12 @@
 import { getFeed, createPost, likePost, unlikePost } from "../services/post.api";
 import { useContext } from "react";
 import { PostContext } from "../post.context";
+import { useAuth } from "../../auth/hooks/useAuth";
 
 export const usePost = () => {
   const context = useContext(PostContext);
   const { loading, setLoading, post, setPost, feed, setFeed, prependPost } = context;
+  const { handleLogout } = useAuth();
 
   const handleGetFeed = async () => {
     setLoading(true);
@@ -13,6 +15,9 @@ export const usePost = () => {
       setFeed(data.posts);
     } catch (error) {
       console.error("Failed to load feed:", error);
+      if (error?.response?.status === 401 && typeof handleLogout === "function") {
+        await handleLogout();
+      }
     } finally {
       setLoading(false);
     }

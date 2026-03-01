@@ -17,19 +17,35 @@ const ProfileHeader = ({
   const isOwnProfile = currentUser?.username === userProfile.username;
 
   const handleLogoutClick = async () => {
-    await handleLogout();
-    navigate("/login", { replace: true });
+    try {
+      await handleLogout();
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      navigate("/login", { replace: true });
+    }
   };
+
+  // Use the same default avatar as the backend schema; this URL is stable and
+  // will only be requested if the user has no profileImage.  An onError
+  // handler still guards against network failures and replaces it with a simple
+  // grey square if needed.
+  const PLACEHOLDER = "https://ik.imagekit.io/0cef4ey58/defaultUser.webp";
+  const avatarSrc =
+    userProfile.profileImage && userProfile.profileImage.trim() !== ""
+      ? userProfile.profileImage
+      : PLACEHOLDER;
 
   return (
     <div className="profile-header">
       <div className="profile-avatar-large">
         <div className="profile-gradient">
           <img
-            src={userProfile.profileImage}
+            src={avatarSrc}
             alt={userProfile.username}
             onError={(e) => {
-              e.target.src = "https://via.placeholder.com/150";
+              e.target.onerror = null;
+              e.target.src = PLACEHOLDER;
             }}
           />
         </div>

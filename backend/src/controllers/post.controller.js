@@ -195,7 +195,7 @@ async function getFeedController(req, res) {
 async function createCommentController(req, res) {
   try {
     const postId = req.params.postId;
-    const user = req.user;
+    const tokenUser = req.user;
     const { text } = req.body;
 
     if (!text || !text.trim()) {
@@ -205,13 +205,19 @@ async function createCommentController(req, res) {
     const post = await postModel.findById(postId);
     if (!post) return res.status(404).json({ message: "Post not found" });
 
+    // make sure we have the latest profile image from the database in case the user
+    // updated it after the token was issued.  Token only contains id/username,
+    // so fetch the user document.
+    const userModel = require("../models/user.model");
+    const userRecord = await userModel.findById(tokenUser.id).lean();
+
     const commentModel = require("../models/comment.model");
 
     const comment = await commentModel.create({
       post: postId,
-      userId: user.id,
-      username: user.username,
-      profileImage: user.profileImage || "",
+      userId: tokenUser.id,
+      username: tokenUser.username,
+      profileImage: userRecord?.profileImage || "",
       text: text.trim(),
     });
 
@@ -226,10 +232,37 @@ async function getCommentsController(req, res) {
   try {
     const postId = req.params.postId;
     const commentModel = require("../models/comment.model");
+    const userModel = require("../models/user.model");
+
+    // fetch comments and ensure that profileImage is populated; if stored value is empty,
+    // grab it from the associated user document.  This fixes old comments created before
+    // we started saving the image and guarantees the frontend always receives a URL.
     const comments = await commentModel
       .find({ post: postId })
       .sort({ createdAt: 1 })
       .lean();
+
+    if (comments.length) {
+      // fetch current profile images for all users who commented
+      const userIds = [...new Set(comments.map((c) => c.userId.toString()))];
+      const users = await userModel
+        .find({ _id: { $in: userIds } })
+        .select("profileImage")
+        .lean();
+      const imageMap = users.reduce((acc, u) => {
+        acc[u._id.toString()] = u.profileImage || "";
+        return acc;
+      }, {});
+      // always override with latest profileImage; if the map has nothing, keep
+      // whatever was stored (might be blank placeholder)
+      comments.forEach((c) => {
+        const latest = imageMap[c.userId.toString()];
+        if (latest !== undefined) {
+          c.profileImage = latest;
+        }
+      });
+    }
+
     return res.status(200).json({ comments });
   } catch (err) {
     console.error("Error fetching comments:", err);

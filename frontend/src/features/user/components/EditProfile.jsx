@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useEditProfile } from "../hooks/useEditProfile";
 import "../styles/editprofile.scss";
 
+const PLACEHOLDER = "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='96'%20height='96'%3E%3Crect%20width='96'%20height='96'%20fill='%23ccc'/%3E%3C/svg%3E";
+
 const EditProfile = ({ onClose, onSaved }) => {
   const { user, updateProfile, loading } = useEditProfile();
   const [username, setUsername] = useState("");
@@ -40,11 +42,16 @@ const EditProfile = ({ onClose, onSaved }) => {
     }
 
     try {
-      await updateProfile({ 
-        username: username.trim(), 
-        bio: bio.trim(), 
-        profileImage 
-      });
+      // Only include profileImage if user actually entered a non-empty value.
+      // Prevents accidentally wiping out the image by submitting an empty string.
+      const payload = {
+        username: username.trim(),
+        bio: bio.trim(),
+      };
+      if (profileImage && profileImage.trim() !== "") {
+        payload.profileImage = profileImage.trim();
+      }
+      await updateProfile(payload);
       if (onSaved) onSaved();
       else if (onClose) onClose();
     } catch (err) {
@@ -81,10 +88,11 @@ const EditProfile = ({ onClose, onSaved }) => {
             <div className="profile-image-wrapper">
               <div className="profile-gradient">
                 <img
-                  src={imagePreview || "https://via.placeholder.com/96"}
+                  src={imagePreview || PLACEHOLDER}
                   alt="Profile"
                   onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/96";
+                    e.target.onerror = null;
+                    e.target.src = PLACEHOLDER;
                   }}
                 />
               </div>
