@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
+const path =require('path');
 
 
 /* require routes */
@@ -19,10 +20,16 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
+app.use(express.static("./public"));
 
 /* using routes */
 app.use("/api/auth", authRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/users", userRouter);
+
+/* public route */
+app.use('*name',(req,res)=>{
+  res.sendFile(path.join(__dirname, ".." ,"/public/index.html"))
+})
 
 module.exports = app;
