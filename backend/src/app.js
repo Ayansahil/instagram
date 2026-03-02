@@ -13,27 +13,10 @@ const app = express();
 app.set("trust proxy", 1);
 
 // ✅ Improved CORS config
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
-app.use(
-  cors({
-    credentials: true,
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn("⚠️ CORS rejected origin:", origin);
-        callback(null, true);
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -41,7 +24,11 @@ app.use(morgan("dev"));
 app.use(express.static("./public"));
 
 /* using routes */
-app.use("/api/auth", authRouter);
+// Auth routes are mounted directly under /api so that the
+// frontend can simply call "/login", "/register", etc.  The
+// production build removed the "/auth" prefix from the generated
+// paths, so we align the backend accordingly.
+app.use("/api", authRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/users", userRouter);
 
