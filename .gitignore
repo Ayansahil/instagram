@@ -23,3 +23,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ignore 
+DEPLOYMENT_STEPS.md
+DEPLOYMENT.md
+
+
+

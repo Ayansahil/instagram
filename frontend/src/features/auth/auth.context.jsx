@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
         const response = await getMe();
         setUser(response.user);
       } catch (error) {
+        console.error("Failed to fetch user:", error?.message);
         setUser(null);
       } finally {
         setLoading(false);
@@ -26,6 +27,7 @@ export function AuthProvider({ children }) {
     try {
       const response = await register(username, email, password);
       setUser(response.user);
+      return response;
     } catch (error) {
       throw error;
     } finally {
@@ -37,8 +39,11 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const response = await login(identifier, password);
+      console.log("Login response:", response);
       setUser(response.user);
+      return response;
     } catch (error) {
+      console.error("Login failed:", error);
       throw error;
     } finally {
       setLoading(false);

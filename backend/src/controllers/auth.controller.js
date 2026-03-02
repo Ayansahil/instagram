@@ -27,11 +27,7 @@ async function registerController(req, res) {
     profileImage,
     password: hash,
   });
-  // JWT only contains the user id.  We avoid putting username or
-  // profileImage into the token because those values can be long (profileImage
-  // especially if it's a data URI) and cause the cookie to exceed the 4KB
-  // browser limit.  Any additional user info needed by handlers is fetched in
-  // the auth middleware when the request arrives.
+
   const token = jwt.sign(
     {
       id: user._id,
@@ -45,8 +41,8 @@ async function registerController(req, res) {
   res.cookie("token", token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    secure: true,
+    maxAge: 24 * 60 * 60 * 1000,
     path: "/",
   });
 
@@ -64,9 +60,11 @@ async function registerController(req, res) {
 async function logginController(req, res) {
   const { identifier, password } = req.body;
 
-  const user = await userModel.findOne({
-    $or: [{ username: identifier }, { email: identifier }],
-  }).select("+password");
+  const user = await userModel
+    .findOne({
+      $or: [{ username: identifier }, { email: identifier }],
+    })
+    .select("+password");
 
   if (!user) {
     return res.status(404).json({
@@ -93,7 +91,7 @@ async function logginController(req, res) {
   res.cookie("token", token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     maxAge: 24 * 60 * 60 * 1000,
     path: "/",
   });
@@ -142,11 +140,9 @@ async function updateMeController(req, res) {
     if (profileImage !== undefined && profileImage.trim() !== "") {
       updateFields.profileImage = profileImage;
     }
-    const updated = await userModel.findByIdAndUpdate(
-      userId,
-      updateFields,
-      { new: true },
-    );
+    const updated = await userModel.findByIdAndUpdate(userId, updateFields, {
+      new: true,
+    });
 
     return res.status(200).json({
       message: "Profile updated",
@@ -169,7 +165,7 @@ async function logoutController(req, res) {
     res.clearCookie("token", {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       path: "/",
     });
     return res.status(200).json({ message: "Logged out" });

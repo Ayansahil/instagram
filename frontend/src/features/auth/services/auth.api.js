@@ -1,13 +1,20 @@
 import axios from "axios";
 
+const getApiBaseUrl = () => {
+  if (import.meta.env.PROD) {
+    return "/api";
+  }
+  return import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
+console.log("🔗 API Base URL:", API_BASE_URL);
+
 const api = axios.create({
-  baseURL: "https://instagram-j2m5.onrender.com/api",
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
-// Safely extract error payload.
-// `error.response` is undefined on network errors (ERR_CONNECTION_REFUSED),
-// so we fall back to the raw error message instead of crashing.
 function extractError(error) {
   if (error.response?.data) {
     return error.response.data;
@@ -17,7 +24,11 @@ function extractError(error) {
 
 export async function register(username, email, password) {
   try {
-    const response = await api.post("/register", { username, email, password });
+    const response = await api.post("/auth/register", {
+      username,
+      email,
+      password,
+    });
     return response.data;
   } catch (error) {
     throw extractError(error);
@@ -26,7 +37,7 @@ export async function register(username, email, password) {
 
 export async function login(identifier, password) {
   try {
-    const response = await api.post("/login", { identifier, password });
+    const response = await api.post("/auth/login", { identifier, password });
     return response.data;
   } catch (error) {
     throw extractError(error);
@@ -35,7 +46,7 @@ export async function login(identifier, password) {
 
 export async function getMe() {
   try {
-    const response = await api.get("/get-me");
+    const response = await api.get("/auth/get-me");
     return response.data;
   } catch (error) {
     throw extractError(error);
@@ -44,7 +55,7 @@ export async function getMe() {
 
 export async function logout() {
   try {
-    const response = await api.post("/logout");
+    const response = await api.post("/auth/logout");
     return response.data;
   } catch (error) {
     throw extractError(error);
@@ -53,7 +64,7 @@ export async function logout() {
 
 export async function updateUser(payload) {
   try {
-    const response = await api.put("/update-me", payload);
+    const response = await api.put("/auth/update-me", payload);
     return response.data;
   } catch (error) {
     throw extractError(error);

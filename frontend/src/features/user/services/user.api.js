@@ -1,7 +1,17 @@
 import axios from "axios";
 
+const getApiBaseUrl = () => {
+  if (import.meta.env.PROD) {
+    return "/api";
+  }
+  return import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+
 const api = axios.create({
-  baseURL: "https://instagram-j2m5.onrender.com/api",
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
@@ -90,14 +100,5 @@ export const getFollowing = async (username) => {
     throw error;
   }
 };
-
-export async function updateUser(payload) {
-  try {
-    const response = await api.put("/update-me", payload);
-    return response.data;
-  } catch (error) {
-    throw extractError(error);
-  }
-}
 
 export default api;

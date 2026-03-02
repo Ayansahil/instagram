@@ -1,7 +1,16 @@
 import axios from "axios";
 
+const getApiBaseUrl = () => {
+  if (import.meta.env.PROD) {
+    return "/api";
+  }
+  return import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
 const api = axios.create({
-  baseURL: "https://instagram-j2m5.onrender.com/api",
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
@@ -14,7 +23,6 @@ export const getFeed = async () => {
     throw error;
   }
 };
-
 
 export const createPost = async (file, caption) => {
   try {
@@ -52,7 +60,7 @@ export const unlikePost = async (postId) => {
     console.error("Error unliking post:", error);
     throw error;
   }
-}; 
+};
 
 export const addComment = async (postId, text) => {
   try {
