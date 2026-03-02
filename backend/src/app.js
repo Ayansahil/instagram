@@ -24,11 +24,8 @@ app.use(morgan("dev"));
 app.use(express.static("./public"));
 
 /* using routes */
-// Auth routes are mounted directly under /api so that the
-// frontend can simply call "/login", "/register", etc.  The
-// production build removed the "/auth" prefix from the generated
-// paths, so we align the backend accordingly.
-app.use("/api", authRouter);
+
+app.use("/api/auth", authRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/users", userRouter);
 

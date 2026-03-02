@@ -24,8 +24,7 @@ function extractError(error) {
 
 export async function register(username, email, password) {
   try {
-    // auth routes no longer include the `/auth` segment in production build
-    const response = await api.post("/register", {
+    const response = await api.post("/auth/register", {
       username,
       email,
       password,
@@ -38,7 +37,7 @@ export async function register(username, email, password) {
 
 export async function login(identifier, password) {
   try {
-    const response = await api.post("/login", { identifier, password });
+    const response = await api.post("/auth/login", { identifier, password });
     return response.data;
   } catch (error) {
     throw extractError(error);
@@ -47,7 +46,7 @@ export async function login(identifier, password) {
 
 export async function getMe() {
   try {
-    const response = await api.get("/get-me");
+    const response = await api.get("/auth/get-me");
     return response.data;
   } catch (error) {
     throw extractError(error);
@@ -56,7 +55,7 @@ export async function getMe() {
 
 export async function logout() {
   try {
-    const response = await api.post("/logout");
+    const response = await api.post("/auth/logout");
     return response.data;
   } catch (error) {
     throw extractError(error);
@@ -65,7 +64,7 @@ export async function logout() {
 
 export async function updateUser(payload) {
   try {
-    const response = await api.put("/update-me", payload);
+    const response = await api.put("/auth/update-me", payload);
     return response.data;
   } catch (error) {
     throw extractError(error);
